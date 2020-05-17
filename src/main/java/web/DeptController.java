@@ -5,21 +5,24 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 @Controller
 public class DeptController {
 	@Autowired
 	private DeptRepo depts;
 
-	@RequestMapping("/dept")
-	public String getDept(@RequestParam("id") int id, ModelMap model) {
+	@RequestMapping("/dept/{id}")
+	public String getDept(@PathVariable("id") int id, ModelMap model) {
 		Optional<Department> dept = depts.findById(id);
 		String msg;
 		if (dept.isPresent())
@@ -38,6 +41,31 @@ public class DeptController {
 		return "deptlist";
 	}
 
+	@RequestMapping(value = "/departmentsxml", produces = { MediaType.APPLICATION_XML_VALUE })
+	@ResponseBody
+	public String getDepartmentsXML() throws Exception {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<departments>");
+		XmlMapper mapper = new XmlMapper();
+		for (Department d : depts.findAll()) {
+			xml.append(mapper.writeValueAsString(d));
+		}
+		xml.append("</departments>");
+		return xml.toString();
+	}
+
+	@RequestMapping(value = "/departments")
+	@ResponseBody
+	public Iterable<Department> getDepartments() {
+		return depts.findAll();
+	}
+
+	@RequestMapping("/departments/{name}")
+	public String searchDeptList(@PathVariable("name") String name, ModelMap model) {
+		model.addAttribute("depts", depts.findByNameContainingIgnoreCase(name));
+		return "deptlist";
+	}
+
 	@RequestMapping("/adddept")
 	public String addDept(ModelMap model) {
 		Department d = new Department();
@@ -49,11 +77,13 @@ public class DeptController {
 	public String addDept(@Valid Department d, Errors errors, ModelMap model) {
 
 		try {
-			if (errors.getErrorCount() > 0)
-				throw new RuntimeException(errors.toString());
+			if (errors.getErrorCount() > 0) {
+				String message = errors.getFieldErrors().get(0).getDefaultMessage();
+				throw new RuntimeException(message);
+			}
 
 			if (depts.findById(d.getId()).isPresent())
-				throw new RuntimeException("Dept Id exits");
+				throw new RuntimeException("Dept id is already present!");
 
 			depts.save(d);
 			return "redirect:/deptlist";
