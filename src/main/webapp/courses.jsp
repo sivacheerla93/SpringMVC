@@ -10,20 +10,26 @@
 </head>
 <body>
 	<h2>Course Fee Calculator</h2>
-	<sf:form method="post">
-		Select Course: 
-		<select>
-			<c:forEach items="${courses}" var="item">
-				<option value="{item.cid}">${item.name}</option>
-			</c:forEach>
-		</select>
-		<br>
-		Material: <input type="checkbox" value="material" />
-		<br>
-		Online: <input type="checkbox" value="online" />
-		<br>
-		<input type="submit" />
+	<sf:form method="post" modelAttribute="course">
+		<table border="1">
+			<tr>
+				<td>Select Course:</td>
+				<td><sf:select path="cid" items="${courses}" itemValue="cid"
+						itemLabel="name" /></td>
+			</tr>
+			<tr>
+				<td>Material:</td>
+				<td><sf:checkbox path="material" /></td>
+			</tr>
+			<tr>
+				<td>Online:</td>
+				<td><sf:checkbox path="online" /></td>
+			</tr>
+			<tr>
+				<td><input type="submit" Value="Calculate Price" /></td>
+				<td><h2>Total: ${totalPrice}</h2></td>
+			</tr>
+		</table>
 	</sf:form>
-	<h2>Total:</h2>
 </body>
 </html>

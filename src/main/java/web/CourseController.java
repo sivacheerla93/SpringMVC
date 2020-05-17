@@ -20,7 +20,41 @@ public class CourseController {
 		list.add(new Course("spring", "Spring", 3000, false, false));
 		list.add(new Course("springboot", "Spring Boot", 4000, false, false));
 		model.put("courses", list);
-		model.put("cid", "javase");
+		model.put("course", new Course());
+		return "courses";
+	}
+
+	@RequestMapping(value = "/courses", method = RequestMethod.POST)
+	public String calculate(Course course, ModelMap model) {
+
+		int totalPrice = 0;
+		int material = 0;
+		int online = 0;
+
+		List<Course> list = new ArrayList<>();
+		list.add(new Course("javase", "Java SE", 4000, false, false));
+		list.add(new Course("javaee", "Java EE", 5000, false, false));
+		list.add(new Course("hibernate", "Hibernate", 2000, false, false));
+		list.add(new Course("spring", "Spring", 3000, false, false));
+		list.add(new Course("springboot", "Spring Boot", 4000, false, false));
+		model.put("courses", list);
+
+		for (Course c : list) {
+			if (c.getCid().equals(course.getCid())) {
+				totalPrice = c.getFee();
+			}
+		}
+
+		if (course.isMaterial()) {
+			material = totalPrice / 100 * 10;
+		}
+
+		if (course.isOnline()) {
+			online = totalPrice / 100 * 10;
+		}
+
+		model.put("totalPrice", totalPrice + material + online);
+
 		return "courses";
 	}
 }

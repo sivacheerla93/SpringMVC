@@ -16,6 +16,10 @@ public class Course {
 		this.online = online;
 	}
 
+	public Course() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getCid() {
 		return cid;
 	}
